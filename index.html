@@ -146,7 +146,13 @@
     </style>
 </head>
 <body>
-
+    <audio id="mystic-bg-music" loop>
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+    
+    <div id="music-control" onclick="toggleMusic()" style="position: fixed; bottom: 30px; left: 30px; z-index: 1000; cursor: pointer; background: var(--glass); border: 1px solid var(--gold); padding: 10px; border-radius: 50%; width: 50px; height: 50px; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+        <i id="music-icon" class="fas fa-volume-mute" style="color: var(--gold); font-size: 1.2rem;"></i>
+    </div>
     <div class="stars-wrapper" id="scene"></div>
 
     <header>
@@ -235,6 +241,43 @@
         </div>
     </section>
     <script>
+        const music = document.getElementById('mystic-bg-music');
+        const musicIcon = document.getElementById('music-icon');
+        let isPlaying = false;
+
+        function toggleMusic() {
+            if (isPlaying) {
+                music.pause();
+                musicIcon.classList.replace('fa-volume-up', 'fa-volume-mute');
+            } else {
+                music.play().catch(e => console.log("Audio play blocked."));
+                musicIcon.classList.replace('fa-volume-mute', 'fa-volume-up');
+            }
+            isPlaying = !isPlaying;
+        }
+
+        // CORRECTED: Single version of slowPreview that handles BOTH scroll and music
+        function slowPreview() {
+            // 1. Play music if it's not already playing
+            if (!isPlaying) {
+                toggleMusic();
+            }
+
+            // 2. Cinematic Scroll
+            let position = window.pageYOffset;
+            const target = document.body.scrollHeight;
+            const speed = 3; 
+            
+            function step() {
+                position += speed;
+                window.scrollTo(0, position);
+                if (position < target - window.innerHeight) {
+                    window.requestAnimationFrame(step);
+                }
+            }
+            window.requestAnimationFrame(step);
+        }
+
         // Star Generator
         const scene = document.getElementById('scene');
         for (let i = 0; i < 200; i++) {
@@ -251,24 +294,9 @@
 
         // Numbers Jumble for Numerology
         setInterval(() => {
-            document.getElementById('luck-num').innerText = Math.floor(Math.random() * 9) + 1;
+            const luckNum = document.getElementById('luck-num');
+            if(luckNum) luckNum.innerText = Math.floor(Math.random() * 9) + 1;
         }, 2000);
-
-        // Slow Cinematic Preview
-        function slowPreview() {
-            let position = 0;
-            const target = document.body.scrollHeight;
-            const speed = 5; // pixels per frame
-            
-            function step() {
-                position += speed;
-                window.scrollTo(0, position);
-                if (position < target - window.innerHeight) {
-                    window.requestAnimationFrame(step);
-                }
-            }
-            window.requestAnimationFrame(step);
-        }
     </script>
 </body>
 </html>
